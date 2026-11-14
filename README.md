@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -88,6 +88,7 @@
         .resumo-total span { font-size: 0.85rem; color: #cbd5e1; }
         .valor-gigante { font-size: 2.2rem; font-weight: 900; color: var(--cor-primaria); margin: 5px 0; }
         .aviso-regra { font-size: 0.75rem; color: #94a3b8; margin-top: 8px; line-height: 1.4; }
+        .aviso-parcelamento { font-size: 0.85rem; color: #25D366; font-weight: bold; margin-top: 8px; }
 
         .btn-zap {
             width: 100%;
@@ -168,6 +169,18 @@
         </div>
 
         <div class="card">
+            <h2>💳 Forma de Pagamento Preferida</h2>
+            <div class="form-group" style="margin-bottom:0;">
+                <label>Como pretende realizar o acerto?</label>
+                <select id="formaPagamento">
+                    <option value="Cartão de Crédito (Parcelado)">Cartão de Crédito (Parcelado)</option>
+                    <option value="Cartão de Débito">Cartão de Débito</option>
+                    <option value="Dinheiro / Pix à Vista">Dinheiro / Pix à Vista</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="card">
             <h2>📋 Resumo do Orçamento</h2>
             
             <div class="form-group">
@@ -178,6 +191,7 @@
             <div class="resumo-total">
                 <span>Estimativa Inicial de Mão de Obra:</span>
                 <div class="valor-gigante" id="valorTotalDisplay">R$ 2.900,00</div>
+                <div id="infoParcelamento" class="aviso-parcelamento"></div>
                 <div class="aviso-regra">⚠️ <em>Valores iniciais de referência. O orçamento final detalhado de materiais e execução é confirmado após a visita técnica no local.</em></div>
             </div>
 
@@ -188,7 +202,6 @@
     </div>
 
     <script>
-        // NÚMERO DO WHATSAPP DA WB REFORMAS ATUALIZADO
         const WHATSAPP_WB = "5511976615787"; 
 
         function calcularOrcamento() {
@@ -202,6 +215,14 @@
             });
 
             document.getElementById('valorTotalDisplay').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+
+            const infoParc = document.getElementById('infoParcelamento');
+            if (total > 10000) {
+                const valorParcela = (total / 5).toFixed(2).replace('.', ',');
+                infoParc.innerHTML = `✨ Condição Especial: Acima de R$ 10.000 em até <strong>5x sem juros</strong> de R$ ${valorParcela} no cartão!`;
+            } else {
+                infoParc.innerHTML = `💳 Parcelamento disponível no cartão (consulte condições).`;
+            }
         }
 
         function enviarOrcamentoZap() {
@@ -209,6 +230,7 @@
             const servicoParts = document.getElementById('servicoBase').value.split('|');
             const nomeServico = servicoParts[1];
             const regiao = document.getElementById('regiaoAtendimento').value;
+            const pagamento = document.getElementById('formaPagamento').value;
 
             let total = parseFloat(servicoParts[0]);
             let msg = `🔥 *ORÇAMENTO DE REFORMA - WB* 🔥\n\n`;
@@ -226,7 +248,11 @@
                 });
             }
 
-            msg += `\n💰 *Estimativa Total:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
+            msg += `\n💳 *Pagamento Desejado:* ${pagamento}\n`;
+            msg += `💰 *Estimativa Total:* R$ ${total.toFixed(2).replace('.', ',')}\n`;
+            if (total > 10000) {
+                msg += `*(Elegível para até 5x sem juros)*\n`;
+            }
             msg += `*(Cliente ciente de que valores exatos dependem de vistoria técnica)*\n\n`;
             msg += `Olá WB Reformas! Simulei meu projeto no site de vocês e gostaria de agendar uma visita técnica.`;
 
